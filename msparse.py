@@ -2,7 +2,7 @@
 
 from bs4 import BeautifulSoup
 from collections import OrderedDict as OD
-from os import path
+from os import path,mkdir
 import sys
 import json
 import requests
@@ -236,6 +236,9 @@ if __name__ == '__main__':
     print >>sys.stderr, "Requested month already cached: %s" % FILE
   else:
     webfetch(REPORT)
+
+  if not path.isdir('bulletins'):
+    mkdir('bulletins')
 
   html = open(FILE,'r').read()
   soup = BeautifulSoup(html)

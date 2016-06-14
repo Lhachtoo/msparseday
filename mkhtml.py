@@ -14,6 +14,8 @@ from collections import OrderedDict as OD
 #In [7]: apr.keys()
 #Out[7]: [u'Executive Summaries', u'Exploitability Index']
 
+url = "https://technet.microsoft.com/en-us/library/security/"
+
 #doc = dominate.document(title='Patch Tuesday HTML Test')
 
 def docheader(idoc):
@@ -412,12 +414,15 @@ def mkmsotable(data):
                          cve in row[col][2]), style=BulletinTableStyle[col])
           elif col == "Details To Support BNS Rating":
             summ, tav, miti, abm, bns = row[col]
-            lc += td(p(strong("Executive Summary:"), summ),
+            lc += td(p(strong("Executive Summary:")), p(summ),
                      p(strong("Threat/Attack Vector(s):"), li(tav)),
                      p(strong("Mitigating Factor(s):"), li(miti)),
                      p(strong("ABM Rating (Other):"), li(abm)),
                      p(strong("BNS Other:"), li(bns)),
                     style=BulletinTableStyle[col])
+          elif col == "Bulletin":
+            bid = row[col]
+            lc += td(p(a(bid,href=url+bid)), style=BulletinTableStyle[col])
           else:
             lc += td(p(row[col]), style=BulletinTableStyle[col])
 
