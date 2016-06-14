@@ -396,6 +396,7 @@ def mkmsotable(data):
         lc = tr(_class='MsoContentRow')
         for col in BulletinTableHeaders:
           if col == "Description":
+            # li or ul {list-style-type:none;}
             lc += td(p(strong(row[col][0])), p(a("KB"+row[col][1],href="http://support.microsoft.com/kb/"+row[col][1])), (li(a(cve,href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name="+cve)) for cve in row[col][2]), style=BulletinTableStyle[col])
           else:
             lc += td(p(row[col]), style=BulletinTableStyle[col])
@@ -403,7 +404,7 @@ def mkmsotable(data):
   return doc
 
 if __name__ == "__main__":
-  data = json.load(open(sys.argv[1]+".json"), object_pairs_hook=OD)
+  data = json.load(open(sys.argv[1]), object_pairs_hook=OD)
   doc = mkmsotable(data)
   
   print doc

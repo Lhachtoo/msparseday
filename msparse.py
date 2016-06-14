@@ -5,11 +5,20 @@ from collections import OrderedDict as OD
 from os import path
 import sys
 import json
-#import requests
+import requests
 
 #url = "https://technet.microsoft.com/en-us/library/security/ms16-027.aspx"
 url = "https://technet.microsoft.com/en-us/library/security/"
 #r = requests.get(url)
+
+def webfetch(report, subdir=''):
+    FILE = path.join(subdir, report + '.html')
+    req_obj = requests.get(url+report)
+    response= req_obj.text
+    ofh = open(FILE, 'wb')
+    ofh.write(response.encode('utf8'))
+    ofh.close()
+
 
 # Eventually....
 # parse.py apr
@@ -172,11 +181,13 @@ def handleBulletin(msid):
   '''Top-level handler for the MS-### bulletins.
   Check ./bulletins/ for the cached file or fetch it fresh from MS'''
 
-  ###
-  # insert checking and fetching code here
-  ###
+  FILE = path.join('bulletins', msid + '.html')
+  if path.isfile(FILE) and (path.getsize(FILE) > 0):
+    print >>sys.stderr, "Requested bulletin already cached: %s" % FILE
+  else:
+    webfetch(msid,'bulletins')
   
-  html = open(path.join('bulletins',msid)+'.html', "r").read()
+  html = open(FILE, "r").read()
   soup = BeautifulSoup(html)
 
   # Each TOC entry gets a handler. MS is a bit inconsisent with the names so some handlers have multiple entries
@@ -214,11 +225,19 @@ def handleBulletin(msid):
     bulletinData[name] = data
   return bulletinData
 
-
 if __name__ == '__main__':
-  report = sys.argv[1] #201601 or 201602 etc...
+  MTH = sys.argv[1] # 3-letter month: jan feb mar apr may jun 
+  YEAR = '16'
 
-  html = open(report+'.html','r').read()
+  REPORT = 'ms'+YEAR+'-'+MTH
+  FILE = REPORT+'.html'
+
+  if path.isfile(FILE) and (path.getsize(FILE) > 0):
+    print >>sys.stderr, "Requested month already cached: %s" % FILE
+  else:
+    webfetch(REPORT)
+
+  html = open(FILE,'r').read()
   soup = BeautifulSoup(html)
   tables = soup.find_all('table')
   data = OD()
