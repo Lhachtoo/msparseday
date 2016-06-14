@@ -349,6 +349,15 @@ def fixup_data(data):
     except KeyError:
       pass
 
+    tav = ("FIXME_TAV",)
+    abm = "N/A"
+    bns = "N/A"
+
+    try:
+      miti = data["Bulletins"][bid]["Mitigating Factors"]
+    except KeyError:
+      miti = ("Microsoft has not identified any workarounds for this vulnerability",)
+
     line["Bulletin"] = bid
     line["Description"] = desc,kbnum,cves
     line["MS Rating"] = msr
@@ -356,7 +365,7 @@ def fixup_data(data):
     line["ABM Rating"] = "FIXME_ABM"
     line["Affected Product(s)"] = affprod
     line["Potential Impact"] = potimp
-    line["Details To Support BNS Rating"] = summ
+    line["Details To Support BNS Rating"] = summ,tav,miti,abm,bns
     all_info.append(line)
   return all_info
 
@@ -396,8 +405,19 @@ def mkmsotable(data):
         lc = tr(_class='MsoContentRow')
         for col in BulletinTableHeaders:
           if col == "Description":
-            # li or ul {list-style-type:none;}
-            lc += td(p(strong(row[col][0])), p(a("KB"+row[col][1],href="http://support.microsoft.com/kb/"+row[col][1])), (li(a(cve,href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name="+cve)) for cve in row[col][2]), style=BulletinTableStyle[col])
+            # Hide bullets:: li or ul {list-style-type:none;}
+            lc += td(p(strong(row[col][0])),
+                     p(a("KB"+row[col][1],href="http://support.microsoft.com/kb/"+row[col][1])),
+                     (li(a(cve,href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name="+cve)) for
+                         cve in row[col][2]), style=BulletinTableStyle[col])
+          elif col == "Details To Support BNS Rating":
+            summ, tav, miti, abm, bns = row[col]
+            lc += td(p(strong("Executive Summary:"), summ),
+                     p(strong("Threat/Attack Vector(s):"), li(tav)),
+                     p(strong("Mitigating Factor(s):"), li(miti)),
+                     p(strong("ABM Rating (Other):"), li(abm)),
+                     p(strong("BNS Other:"), li(bns)),
+                    style=BulletinTableStyle[col])
           else:
             lc += td(p(row[col]), style=BulletinTableStyle[col])
 
