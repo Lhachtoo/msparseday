@@ -8,16 +8,20 @@ import json
 import requests
 
 #url = "https://technet.microsoft.com/en-us/library/security/ms16-027.aspx"
-url = "https://technet.microsoft.com/en-us/library/security/"
+url_ms = "https://technet.microsoft.com/en-us/library/security/"
 #r = requests.get(url)
 
-def webfetch(report, subdir=''):
+# TODO this is nasty, refactor
+def webfetch(report, subdir='', url=url_ms, ret=False):
     FILE = path.join(subdir, report + '.html')
     req_obj = requests.get(url+report)
     response= req_obj.text
-    ofh = open(FILE, 'wb')
-    ofh.write(response.encode('utf8'))
-    ofh.close()
+    if not ret:
+      ofh = open(FILE, 'wb')
+      ofh.write(response.encode('utf8'))
+      ofh.close()
+      return
+    return response
 
 
 # Eventually....
@@ -179,7 +183,8 @@ def handleBNotFound(div, name):
 
 def handleBulletin(msid):
   '''Top-level handler for the MS-### bulletins.
-  Check ./bulletins/ for the cached file or fetch it fresh from MS'''
+  Check ./bulletins/ for the cached file or fetch it fresh from MS
+  Also pull ISC Rating from SANS'''
 
   FILE = path.join('bulletins', msid + '.html')
   if path.isfile(FILE) and (path.getsize(FILE) > 0):
@@ -187,6 +192,10 @@ def handleBulletin(msid):
   else:
     webfetch(msid,'bulletins')
   
+  sans_url = "https://isc.sans.edu/api/getmspatch/%s?json" % msid
+  sans_json = webfetch('', url=sans_url, ret=True)
+  sans_json = json.loads(sans_json)
+
   html = open(FILE, "r").read()
   soup = BeautifulSoup(html)
 
@@ -223,6 +232,7 @@ def handleBulletin(msid):
     section = span.findNext('div')
     name, data = sectionHandlers.get(entry_name, handleBNotFound)(section, name=entry_name)
     bulletinData[name] = data
+  bulletinData["SANS"] = sans_json
   return bulletinData
 
 if __name__ == '__main__':
