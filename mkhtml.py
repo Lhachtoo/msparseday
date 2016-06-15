@@ -340,7 +340,7 @@ def fixup_data(data):
     line["Description"] = desc,kbnum,cves
     line["MS Rating"] = msr
     line["BNS Rating"] = "FIXME_BNS"
-    line["ABM Rating"] = "FIXME_ABM"
+    line["ABM Rating"] = strong("N/A")
     line["Affected Product(s)"] = affprod
     line["Potential Impact"] = potimp
     line["Details To Support BNS Rating"] = summ,tav,miti,abm,bns
