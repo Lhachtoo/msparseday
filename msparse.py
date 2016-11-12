@@ -86,7 +86,7 @@ def handleExploitIndex(table):
         bulletin,desc = txt
       except ValueError:
         print >>sys.stderr, "Unexpected line: %s" % txt
-        bulletin,desc = txt.split(":",1)
+        bulletin,desc = txt[0].split(":",1)
       entries = []
       entry = OD()
     else:
