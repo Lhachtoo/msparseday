@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 from bs4 import BeautifulSoup
 from collections import OrderedDict as OD
@@ -81,7 +81,12 @@ def handleExploitIndex(table):
     cols = row.find_all('td')
     if len(cols) is 1:
       if entry is not None: tdata[bulletin] = OD([("Bulletin",bulletin), ("Description",desc),("Details",entries)])
-      bulletin,desc = getText(cols[0]).split(": ",1)
+      txt = getText(cols[0]).split(": ",1)
+      try:
+        bulletin,desc = txt
+      except ValueError:
+        print >>sys.stderr, "Unexpected line: %s" % txt
+        bulletin,desc = txt.split(":",1)
       entries = []
       entry = OD()
     else:
